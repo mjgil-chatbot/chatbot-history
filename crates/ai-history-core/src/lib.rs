@@ -31,6 +31,8 @@ pub mod checkpoint;
 pub mod completion_gate;
 pub mod concurrency;
 pub mod conflict_resolution;
+pub mod context_snapshot;
+pub mod cursor_navigation;
 pub mod error;
 pub mod hash;
 pub mod id;
