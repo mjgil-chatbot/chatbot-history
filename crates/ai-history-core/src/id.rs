@@ -35,3 +35,9 @@ impl CheckpointId {
     pub fn new() -> Self {
         Self(Uuid::new_v4())
     }}
+/// Blob identifier - content-addressed blob reference
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct BlobId(Uuid);
+/// Manifest identifier - workspace snapshot manifest
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ManifestId(Uuid);

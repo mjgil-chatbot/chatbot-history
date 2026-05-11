@@ -39,6 +39,8 @@ pub mod dirty_workspace;
 pub mod doc_completeness;
 pub mod docs_gate;
 pub mod error;
+pub mod event_log;
+pub mod export;
 pub mod hash;
 pub mod id;
 pub mod timestamp;
