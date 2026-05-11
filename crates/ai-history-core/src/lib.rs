@@ -28,6 +28,7 @@ pub mod blob_store;
 pub mod branch;
 pub mod canonical_ownership;
 pub mod checkpoint;
+pub mod completion_gate;
 pub mod error;
 pub mod hash;
 pub mod id;
