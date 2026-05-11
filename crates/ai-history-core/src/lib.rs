@@ -37,6 +37,7 @@ pub mod dependency_rules;
 pub mod design_review;
 pub mod dirty_workspace;
 pub mod doc_completeness;
+pub mod docs_gate;
 pub mod error;
 pub mod hash;
 pub mod id;
