@@ -1,0 +1,6 @@
+target
+**/*.rs.bk
+repomix-output.xml
+\*\*
+docs/autonomous/
+docs/*-status.md

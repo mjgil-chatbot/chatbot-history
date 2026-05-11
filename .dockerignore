@@ -1,0 +1,10 @@
+/target/
+/tests/
+/scripts/
+/docs/
+*.md
+.git*
+LICENSE
+README.md
+rust-toolchain.toml
+rustfmt.toml
