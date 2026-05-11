@@ -46,6 +46,7 @@ pub mod gc;
 pub mod hash;
 pub mod id;
 pub mod ignore_rules;
+pub mod implementation_matrix;
 pub mod timestamp;
 pub use actor::*;
 pub use error::*;
