@@ -56,6 +56,8 @@ pub mod path;
 pub mod persistence_model;
 pub mod prompt_edit;
 pub mod recovery;
+pub mod redo;
+pub mod reproducibility;
 pub mod timestamp;
 pub use accessibility::*;
 pub use actor::*;
