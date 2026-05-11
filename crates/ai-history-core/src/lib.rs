@@ -42,6 +42,7 @@ pub mod error;
 pub mod event_log;
 pub mod export;
 pub mod fsm_model;
+pub mod gc;
 pub mod hash;
 pub mod id;
 pub mod timestamp;
