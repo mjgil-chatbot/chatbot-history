@@ -28,3 +28,10 @@ impl TurnId {
     pub fn new() -> Self {
         Self(Uuid::new_v4())
     }}
+/// Checkpoint identifier - represents a workspace snapshot checkpoint
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct CheckpointId(Uuid);
+impl CheckpointId {
+    pub fn new() -> Self {
+        Self(Uuid::new_v4())
+    }}
