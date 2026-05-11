@@ -9,3 +9,6 @@
 
 #![cfg_attr(test, allow(unused_imports, unused_variables))]
 
+pub mod diff;
+pub mod merge;
+pub use diff::*;
