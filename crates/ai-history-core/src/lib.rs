@@ -33,6 +33,7 @@ pub mod concurrency;
 pub mod conflict_resolution;
 pub mod context_snapshot;
 pub mod cursor_navigation;
+pub mod dependency_rules;
 pub mod error;
 pub mod hash;
 pub mod id;
