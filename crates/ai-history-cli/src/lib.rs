@@ -31,3 +31,6 @@
 // Integration: Commands use real SQLite persistence via SqliteStore.
 // Tests use TempDir workspaces to verify checkpoint/list/restore/diff/status/branches/fork behavior.
 
+pub mod commands;
+pub mod output;
+pub use commands::*;
