@@ -21,6 +21,10 @@
     )
 )]
 
+pub mod accessibility;
+pub mod actor;
+pub mod benchmark;
+pub mod blob_store;
 pub mod error;
 pub mod hash;
 pub mod id;
