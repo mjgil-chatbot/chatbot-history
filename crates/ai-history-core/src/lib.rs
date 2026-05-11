@@ -45,6 +45,7 @@ pub mod fsm_model;
 pub mod gc;
 pub mod hash;
 pub mod id;
+pub mod ignore_rules;
 pub mod timestamp;
 pub use actor::*;
 pub use error::*;
