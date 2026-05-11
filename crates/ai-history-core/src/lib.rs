@@ -51,6 +51,7 @@ pub mod integrity;
 pub mod invariants;
 pub mod materialized_views;
 pub mod message;
+pub mod observability;
 pub mod timestamp;
 pub use accessibility::*;
 pub use actor::*;
