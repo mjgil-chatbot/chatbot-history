@@ -1,0 +1,68 @@
+[workspace]
+members = [
+    "crates/ai-history-core",
+    "crates/ai-history-fsm",
+    "crates/ai-history-events",
+    "crates/ai-history-store",
+    "crates/ai-history-snapshot",
+    "crates/ai-history-diff",
+    "crates/ai-history-restore",
+    "crates/ai-history-context",
+    "crates/ai-history-ui-model",
+    "crates/ai-history-cli",
+    "crates/ai-history-testkit",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "0BSD"
+authors = ["Local User"]
+
+[workspace.dependencies]
+anyhow = "1.0"
+cap = "0.1.2"
+clap = { version = "4.5", features = ["derive", "env"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.49", features = ["fs", "macros", "rt-multi-thread", "sync", "time"] }
+thiserror = "1.0"
+tracing = "0.1"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+tempfile = "3.8"
+pretty_assertions = "1.4"
+criterion = "0.5"
+
+[profile.release]
+opt-level = 1
+lto = false
+codegen-units = 16
+incremental = true
+
+[profile.test]
+opt-level = 3
+debug = false
+
+[profile.dev]
+opt-level = 3
+debug = false
+
+[profile.release.package."*"]
+opt-level = 3
+
+[profile.ship]
+inherits = "release"
+opt-level = 3
+lto = true
+codegen-units = 1
+incremental = false
+
+[profile.coverage]
+inherits = "dev"
+opt-level = 0
+debug = 1
+incremental = false

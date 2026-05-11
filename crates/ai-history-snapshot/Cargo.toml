@@ -1,0 +1,22 @@
+[package]
+name = "ai-history-snapshot"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+ai-history-store = { path = "../ai-history-store" }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true }
+walkdir = "2.4"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }
+ai-history-testkit = { path = "../ai-history-testkit" }

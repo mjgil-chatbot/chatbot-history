@@ -1,0 +1,16 @@
+[package]
+name = "ai-history-context"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

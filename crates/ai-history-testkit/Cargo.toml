@@ -1,0 +1,27 @@
+[package]
+name = "ai-history-testkit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+ai-history-fsm = { path = "../ai-history-fsm" }
+ai-history-events = { path = "../ai-history-events" }
+ai-history-store = { path = "../ai-history-store" }
+ai-history-snapshot = { path = "../ai-history-snapshot" }
+ai-history-diff = { path = "../ai-history-diff" }
+ai-history-restore = { path = "../ai-history-restore" }
+ai-history-context = { path = "../ai-history-context" }
+ai-history-ui-model = { path = "../ai-history-ui-model" }
+ai-history-cli = { path = "../ai-history-cli" }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+rand = "0.8"
+hex = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]

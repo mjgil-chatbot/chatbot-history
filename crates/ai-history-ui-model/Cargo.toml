@@ -1,0 +1,16 @@
+[package]
+name = "ai-history-ui-model"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+ai-history-events = { path = "../ai-history-events" }
+ai-history-snapshot = { path = "../ai-history-snapshot" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

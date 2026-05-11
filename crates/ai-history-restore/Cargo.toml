@@ -1,0 +1,20 @@
+[package]
+name = "ai-history-restore"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+ai-history-snapshot = { path = "../ai-history-snapshot" }
+ai-history-diff = { path = "../ai-history-diff" }
+ai-history-events = { path = "../ai-history-events" }
+ai-history-store = { path = "../ai-history-store" }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }

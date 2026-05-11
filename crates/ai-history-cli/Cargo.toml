@@ -1,0 +1,30 @@
+[package]
+name = "ai-history-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+ai-history-fsm = { path = "../ai-history-fsm" }
+ai-history-events = { path = "../ai-history-events" }
+ai-history-store = { path = "../ai-history-store" }
+ai-history-snapshot = { path = "../ai-history-snapshot" }
+ai-history-restore = { path = "../ai-history-restore" }
+ai-history-context = { path = "../ai-history-context" }
+ai-history-ui-model = { path = "../ai-history-ui-model" }
+clap = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+rusqlite = { version = "0.39", features = ["bundled"] }
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[[bin]]
+name = "ai-history"
+path = "src/bin/main.rs"

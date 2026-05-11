@@ -1,0 +1,15 @@
+[package]
+name = "ai-history-diff"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ai-history-core = { path = "../ai-history-core" }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+similar = "2.4"
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
