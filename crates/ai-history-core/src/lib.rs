@@ -35,6 +35,8 @@ pub mod context_snapshot;
 pub mod cursor_navigation;
 pub mod dependency_rules;
 pub mod design_review;
+pub mod dirty_workspace;
+pub mod doc_completeness;
 pub mod error;
 pub mod hash;
 pub mod id;
