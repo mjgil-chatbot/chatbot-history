@@ -58,6 +58,10 @@ pub mod prompt_edit;
 pub mod recovery;
 pub mod redo;
 pub mod reproducibility;
+pub mod result;
+pub mod retention;
+pub mod rollback_modes;
+pub mod rollback_scope;
 pub mod timestamp;
 pub use accessibility::*;
 pub use actor::*;
@@ -90,3 +94,7 @@ pub use event_log::{
 pub use fsm_model::*;
 pub use ignore_rules::*;
 pub use implementation_matrix::*;
+pub use retention::{
+    CompactionConfig, CompactionStrategy, GcResult as RetentionGcResult, RetentionPeriod,
+    RetentionRule, RetentionTarget,
+};
