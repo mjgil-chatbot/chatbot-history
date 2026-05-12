@@ -25,6 +25,8 @@ pub mod gc;
 pub mod integrity;
 pub mod migrations;
 pub mod orchestrator;
+#[cfg(test)]
+mod scope_tests;
 pub mod session;
 pub mod sqlite_store;
 pub mod store;
