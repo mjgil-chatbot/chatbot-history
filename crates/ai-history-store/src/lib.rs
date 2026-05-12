@@ -25,4 +25,5 @@ pub mod integrity;
 pub mod migrations;
 pub mod traits;
 pub use integrity::*;
+pub use traits::{BlobStore, BranchStore, CheckpointStore, ManifestStore, SessionStore, TurnStore};
 pub use ai_history_events::Event;
