@@ -41,6 +41,7 @@ pub mod docs_gate;
 pub mod error;
 pub mod event_log;
 pub mod export;
+pub mod fork_conversation;
 pub mod fsm_model;
 pub mod gc;
 pub mod hash;
@@ -83,6 +84,7 @@ pub use id::*;
 pub use integrity::*;
 pub use invariants::*;
 pub use message::*;
+pub use result::*;
 pub use timestamp::*;
 pub use benchmark::*;
 pub use canonical_ownership::*;
@@ -96,6 +98,7 @@ pub use docs_gate::*;
 pub use event_log::{
     EventId, EventOrdering, EventSchemaValidator, PayloadVersion, ReplayResult, SequenceNumber,
 };
+pub use fork_conversation::*;
 pub use fsm_model::*;
 pub use ignore_rules::*;
 pub use implementation_matrix::*;
