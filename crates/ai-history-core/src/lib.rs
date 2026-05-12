@@ -84,8 +84,20 @@ pub use id::*;
 pub use integrity::*;
 pub use invariants::*;
 pub use message::*;
+pub use observability::*;
+pub use path::*;
+pub use persistence_model::{
+    BranchDagConfig, ConsistencyLevel, ContentAddressingConfig, DataCategory, EventSourcingConfig,
+    MaterializedViewConfig, PersistenceModel, PersistenceRequirement, PersistenceStrategy,
+    RetentionPolicy as PersistenceRetentionPolicy,
+};
+pub use recovery::*;
 pub use result::*;
+pub use rollback_scope::*;
+pub use session::*;
 pub use timestamp::*;
+pub use turn::*;
+pub use user_flows::*;
 pub use benchmark::*;
 pub use canonical_ownership::*;
 pub use checkpoint::*;
@@ -102,7 +114,13 @@ pub use fork_conversation::*;
 pub use fsm_model::*;
 pub use ignore_rules::*;
 pub use implementation_matrix::*;
+pub use materialized_views::*;
+pub use prompt_edit::*;
+pub use redo::*;
+pub use reproducibility::*;
 pub use retention::{
     CompactionConfig, CompactionStrategy, GcResult as RetentionGcResult, RetentionPeriod,
     RetentionRule, RetentionTarget,
 };
+pub use rollback_modes::*;
+pub use security::*;
