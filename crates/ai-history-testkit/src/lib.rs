@@ -43,6 +43,8 @@ pub mod builders;
 pub mod ci_validation;
 #[cfg(test)]
 mod cli_tests;
+#[cfg(test)]
+mod concurrency_security_tests;
 pub mod evidence_gate;
 pub mod fakes;
 #[cfg(test)]
