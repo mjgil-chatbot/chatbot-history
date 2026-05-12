@@ -9,3 +9,5 @@
 
 #![cfg_attr(test, allow(unused_imports, unused_mut, unused_variables))]
 
+pub mod manifest;
+pub use manifest::*;
