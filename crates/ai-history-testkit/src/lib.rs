@@ -37,6 +37,8 @@ mod acceptance;
 mod audit_tests;
 #[cfg(test)]
 mod branch_dag_tests;
+#[cfg(test)]
+mod branch_fork_policy_tests;
 pub mod builders;
 pub mod ci_validation;
 pub mod evidence_gate;
