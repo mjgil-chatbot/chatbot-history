@@ -33,6 +33,10 @@
 
 #[cfg(test)]
 mod acceptance;
+#[cfg(test)]
+mod audit_tests;
+#[cfg(test)]
+mod branch_dag_tests;
 pub mod builders;
 pub mod ci_validation;
 pub mod evidence_gate;
