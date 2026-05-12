@@ -11,12 +11,15 @@ use std::io::Write;
 use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 #[path = "workspace_store_support.rs"]
 mod workspace_store_support;
+
 use self::workspace_store_support::{
     collect_mapped_rows, extract_manifest_blob_hashes, is_older_than_grace,
     prune_empty_object_dirs, query_count, query_sum, storage_err,
 };
+
 const DEFAULT_MAX_TOTAL_BLOB_BYTES: u64 = 5 * 1024 * 1024 * 1024;
 const DEFAULT_FRESH_WRITE_GRACE_HOURS: u64 = 24;
 const EXTERNAL_BLOB_MODE_KEY: &str = "external_blob_mode";
@@ -24,6 +27,7 @@ const MAX_TOTAL_BLOB_BYTES_KEY: &str = "max_total_blob_bytes";
 const FRESH_WRITE_GRACE_HOURS_KEY: &str = "fresh_write_grace_hours";
 const OBJECTS_DIR: &str = "objects";
 const HASH_ALGO_DIR: &str = "sha256";
+
 #[derive(Debug, Clone, Default)]
 pub struct BlobQuotaReport {
     pub object_count: usize,
@@ -32,10 +36,13 @@ pub struct BlobQuotaReport {
     pub inline_blob_bytes: u64,
     pub max_total_blob_bytes: u64,
 }
+
 impl BlobQuotaReport {
     pub fn over_quota(&self) -> bool {
         self.stored_bytes > self.max_total_blob_bytes
-    }}
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct BlobMigrationReport {
     pub migrated_blobs: usize,
@@ -43,6 +50,7 @@ pub struct BlobMigrationReport {
     pub remaining_inline_blobs: usize,
     pub vacuum_performed: bool,
 }
+
 #[derive(Debug, Clone, Default)]
 pub struct BlobGcReport {
     pub deleted_objects: usize,
@@ -51,10 +59,12 @@ pub struct BlobGcReport {
     pub missing_object_files: usize,
     pub protected_recent_objects: usize,
 }
+
 pub struct HistoryStore {
     inner: SqliteStore,
     db_path: PathBuf,
 }
+
 impl HistoryStore {
     pub fn open<P: AsRef<Path>>(path: P) -> CoreResult<Self> {
         let db_path = path.as_ref().to_path_buf();
@@ -62,33 +72,33 @@ impl HistoryStore {
         let store = Self { inner, db_path };
         store.run_external_blob_migrations()?;
         Ok(store)
-    }}
-impl HistoryStore {
+    }
+
     pub fn in_memory() -> CoreResult<Self> {
         let db_path = std::env::temp_dir().join(format!("ai-history-{}.db", uuid::Uuid::new_v4()));
         Self::open(db_path)
-    }}
-impl HistoryStore {
+    }
+
     pub fn db_path(&self) -> &Path {
         &self.db_path
-    }}
-impl HistoryStore {
+    }
+
     pub fn object_store_dir(&self) -> PathBuf {
         self.db_path
             .parent()
             .unwrap_or_else(|| Path::new("."))
             .join(OBJECTS_DIR)
             .join(HASH_ALGO_DIR)
-    }}
-impl HistoryStore {
+    }
+
     pub fn uses_metadata_snapshots(&self) -> CoreResult<bool> {
         Ok(self.external_blob_mode_enabled()?)
-    }}
-impl HistoryStore {
+    }
+
     pub fn set_max_total_blob_bytes(&self, max_bytes: u64) -> CoreResult<()> {
         self.set_setting(MAX_TOTAL_BLOB_BYTES_KEY, max_bytes.to_string().as_str())
-    }}
-impl HistoryStore {
+    }
+
     pub fn migrate_all_legacy_inline_blobs(&self) -> CoreResult<BlobMigrationReport> {
         let mut summary = BlobMigrationReport::default();
         loop {
@@ -101,8 +111,8 @@ impl HistoryStore {
                 return Ok(summary);
             }
         }
-    }}
-impl HistoryStore {
+    }
+
     pub fn quota_report(&self) -> CoreResult<BlobQuotaReport> {
         let conn = self.metadata_connection()?;
         let object_count = query_count(&conn, "SELECT COUNT(*) FROM blob_objects")?;
@@ -125,8 +135,8 @@ impl HistoryStore {
             inline_blob_bytes,
             max_total_blob_bytes: self.max_total_blob_bytes()?,
         })
-    }}
-impl HistoryStore {
+    }
+
     pub fn migrate_legacy_inline_blobs(&self, limit: usize) -> CoreResult<BlobMigrationReport> {
         self.rebuild_manifest_blob_refs()?;
         let conn = self.metadata_connection()?;
@@ -180,8 +190,8 @@ impl HistoryStore {
             report.vacuum_performed = true;
         }
         Ok(report)
-    }}
-impl HistoryStore {
+    }
+
     pub fn garbage_collect_objects(&self, execute: bool) -> CoreResult<BlobGcReport> {
         self.rebuild_manifest_blob_refs()?;
         let conn = self.metadata_connection()?;
@@ -249,13 +259,13 @@ impl HistoryStore {
             }
         }
         Ok(report)
-    }}
-impl HistoryStore {
+    }
+
     pub fn create_manifest(&self, manifest: &ManifestInfo) -> CoreResult<()> {
         self.inner.create_manifest(manifest)?;
         self.record_manifest_blob_refs(manifest.id, &manifest.manifest_data)
-    }}
-impl HistoryStore {
+    }
+
     pub fn delete_manifest(&self, manifest_id: ManifestId) -> CoreResult<()> {
         let conn = self.metadata_connection()?;
         conn.execute(
@@ -264,12 +274,12 @@ impl HistoryStore {
         )
         .map_err(storage_err)?;
         self.inner.delete_manifest(&manifest_id)
-    }}
-impl HistoryStore {
+    }
+
     pub fn create_checkpoint(&self, checkpoint: &CheckpointInfo) -> CoreResult<()> {
         self.inner.create_checkpoint(checkpoint)
-    }}
-impl HistoryStore {
+    }
+
     pub fn delete_checkpoint(&self, checkpoint_id: CheckpointId) -> CoreResult<()> {
         let conn = self.metadata_connection()?;
         let manifest_ids = {
@@ -290,8 +300,8 @@ impl HistoryStore {
             )?;
         }
         self.inner.delete_checkpoint(checkpoint_id)
-    }}
-impl HistoryStore {
+    }
+
     fn run_external_blob_migrations(&self) -> CoreResult<()> {
         let conn = self.metadata_connection()?;
         conn.execute_batch(
@@ -335,37 +345,37 @@ impl HistoryStore {
             )?;
         }
         Ok(())
-    }}
-impl HistoryStore {
+    }
+
     fn metadata_connection(&self) -> CoreResult<Connection> {
         let conn = Connection::open(&self.db_path).map_err(storage_err)?;
         conn.execute("PRAGMA foreign_keys = ON", [])
             .map_err(storage_err)?;
         Ok(conn)
-    }}
-impl HistoryStore {
+    }
+
     fn external_blob_mode_enabled(&self) -> CoreResult<bool> {
         Ok(self
             .get_setting(EXTERNAL_BLOB_MODE_KEY)?
             .as_deref()
             .unwrap_or("0")
             == "1")
-    }}
-impl HistoryStore {
+    }
+
     fn max_total_blob_bytes(&self) -> CoreResult<u64> {
         Ok(self
             .get_setting(MAX_TOTAL_BLOB_BYTES_KEY)?
             .and_then(|value| value.parse().ok())
             .unwrap_or(DEFAULT_MAX_TOTAL_BLOB_BYTES))
-    }}
-impl HistoryStore {
+    }
+
     fn fresh_write_grace_hours(&self) -> CoreResult<u64> {
         Ok(self
             .get_setting(FRESH_WRITE_GRACE_HOURS_KEY)?
             .and_then(|value| value.parse().ok())
             .unwrap_or(DEFAULT_FRESH_WRITE_GRACE_HOURS))
-    }}
-impl HistoryStore {
+    }
+
     fn get_setting(&self, key: &str) -> CoreResult<Option<String>> {
         let conn = self.metadata_connection()?;
         conn.query_row(
@@ -375,8 +385,8 @@ impl HistoryStore {
         )
         .optional()
         .map_err(storage_err)
-    }}
-impl HistoryStore {
+    }
+
     fn set_setting(&self, key: &str, value: &str) -> CoreResult<()> {
         let conn = self.metadata_connection()?;
         conn.execute(
@@ -387,8 +397,8 @@ impl HistoryStore {
         )
         .map_err(storage_err)?;
         Ok(())
-    }}
-impl HistoryStore {
+    }
+
     fn record_manifest_blob_refs(
         &self,
         manifest_id: ManifestId,
@@ -409,8 +419,8 @@ impl HistoryStore {
             .map_err(storage_err)?;
         }
         Ok(())
-    }}
-impl HistoryStore {
+    }
+
     fn rebuild_manifest_blob_refs(&self) -> CoreResult<()> {
         let conn = self.metadata_connection()?;
         conn.execute("DELETE FROM blob_refs WHERE owner_kind = 'manifest'", [])
@@ -433,8 +443,8 @@ impl HistoryStore {
             )?;
         }
         Ok(())
-    }}
-impl HistoryStore {
+    }
+
     fn live_manifest_hashes(
         &self,
         conn: &Connection,
@@ -452,8 +462,8 @@ impl HistoryStore {
                 .map_err(storage_err)?,
         )?;
         Ok(hashes.into_iter().collect())
-    }}
-impl HistoryStore {
+    }
+
     fn write_object_if_missing(&self, hash_hex: &str, contents: &[u8]) -> CoreResult<u64> {
         let final_path = self.object_path_for_hash(hash_hex);
         if final_path.is_file() {
@@ -486,8 +496,8 @@ impl HistoryStore {
         fs::rename(&temp_path, &final_path)
             .map_err(|e| CoreError::Storage(format!("rename temp object: {}", e)))?;
         Ok(contents.len() as u64)
-    }}
-impl HistoryStore {
+    }
+
     fn migrate_inline_blob_hash(&self, hash_hex: &str) -> CoreResult<bool> {
         let Some(contents) = self.read_inline_blob(hash_hex)? else {
             return Ok(false);
@@ -509,8 +519,8 @@ impl HistoryStore {
         conn.execute("UPDATE blobs SET content = X'' WHERE hash = ?1", [hash_hex])
             .map_err(storage_err)?;
         Ok(true)
-    }}
-impl HistoryStore {
+    }
+
     fn object_path_for_hash(&self, hash_hex: &str) -> PathBuf {
         let prefix_a = &hash_hex[0..2];
         let prefix_b = &hash_hex[2..4];
@@ -518,8 +528,8 @@ impl HistoryStore {
             .join(prefix_a)
             .join(prefix_b)
             .join(hash_hex)
-    }}
-impl HistoryStore {
+    }
+
     fn read_inline_blob(&self, hash_hex: &str) -> CoreResult<Option<Vec<u8>>> {
         let conn = self.metadata_connection()?;
         conn.query_row(
@@ -529,8 +539,8 @@ impl HistoryStore {
         )
         .optional()
         .map_err(storage_err)
-    }}
-impl HistoryStore {
+    }
+
     fn external_blob_row(&self, hash_hex: &str) -> CoreResult<Option<(String, String)>> {
         let conn = self.metadata_connection()?;
         conn.query_row(
@@ -540,7 +550,9 @@ impl HistoryStore {
         )
         .optional()
         .map_err(storage_err)
-    }}
+    }
+}
+
 impl BlobStore for HistoryStore {
     fn write_blob(&mut self, hash: &[u8], data: &[u8]) -> CoreResult<()> {
         let expected_hash = hex::encode(hash);
@@ -672,6 +684,7 @@ impl BlobStore for HistoryStore {
         Ok(blobs)
     }
 }
+
 impl GcStore for HistoryStore {
     fn get_all_session_ids(&self) -> CoreResult<Vec<SessionId>> {
         self.inner.get_all_session_ids()
@@ -739,6 +752,7 @@ impl GcStore for HistoryStore {
         self.delete_manifest(*id)
     }
 }
+
 impl Deref for HistoryStore {
     type Target = SqliteStore;
 
@@ -746,12 +760,19 @@ impl Deref for HistoryStore {
         &self.inner
     }
 }
+
 impl DerefMut for HistoryStore {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
+
 impl HistoryStore {
     fn clone_for_delete(&self) -> CoreResult<Self> {
         Self::open(&self.db_path)
-    }}
+    }
+}
+
+#[cfg(test)]
+#[path = "workspace_store_tests.rs"]
+mod workspace_store_tests;

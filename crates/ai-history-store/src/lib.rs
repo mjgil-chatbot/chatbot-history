@@ -29,6 +29,7 @@ pub mod traits;
 pub mod unit_of_work;
 pub mod views;
 pub mod workspace_store;
+mod workspace_store_backup;
 pub use integrity::*;
 pub use sqlite_store::*;
 pub use traits::{BlobStore, BranchStore, CheckpointStore, ManifestStore, SessionStore, TurnStore};
