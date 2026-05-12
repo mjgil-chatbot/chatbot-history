@@ -41,6 +41,8 @@ mod branch_dag_tests;
 mod branch_fork_policy_tests;
 pub mod builders;
 pub mod ci_validation;
+#[cfg(test)]
+mod cli_tests;
 pub mod evidence_gate;
 pub mod fakes;
 #[cfg(test)]
