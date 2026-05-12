@@ -82,6 +82,7 @@ pub use hash::*;
 pub use id::*;
 pub use integrity::*;
 pub use invariants::*;
+pub use message::*;
 pub use timestamp::*;
 pub use benchmark::*;
 pub use canonical_ownership::*;

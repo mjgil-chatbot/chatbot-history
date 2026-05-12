@@ -23,7 +23,13 @@
 
 pub mod integrity;
 pub mod migrations;
+pub mod sqlite_store;
 pub mod traits;
 pub use integrity::*;
+pub use sqlite_store::*;
 pub use traits::{BlobStore, BranchStore, CheckpointStore, ManifestStore, SessionStore, TurnStore};
+pub use sqlite_store::{
+    BlobInfo, BranchInfo, CheckpointInfo, ContextSnapshotRecord, ManifestInfo, MessageRecord,
+    SessionInfo, TurnInfo,
+};
 pub use ai_history_events::Event;
