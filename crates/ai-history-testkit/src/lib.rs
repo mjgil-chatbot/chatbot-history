@@ -34,3 +34,5 @@
 #[cfg(test)]
 mod acceptance;
 pub mod builders;
+pub mod ci_validation;
+pub mod evidence_gate;
