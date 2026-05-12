@@ -1,15 +1,21 @@
 use super::execute_command;
-use ai_history_cli::Commands;
+use ai_history_cli::{Commands, RestoreModeCli};
 use ai_history_core::{BranchId, CheckpointId, SessionId, TurnId};
 use ai_history_store::sqlite_store::{BranchInfo, CheckpointInfo, SqliteStore, TurnInfo};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
+
+mod command_flow;
+mod history;
+mod maintenance;
+
 pub(super) struct TestContext {
     pub(super) store: SqliteStore,
     _temp_dir: TempDir,
     workspace: PathBuf,
 }
+
 impl TestContext {
     pub(super) fn new() -> Self {
         let temp_dir = TempDir::new().unwrap();
@@ -19,28 +25,28 @@ impl TestContext {
             _temp_dir: temp_dir,
             workspace,
         }
-    }}
-impl TestContext {
+    }
+
     pub(super) fn workspace(&self) -> &PathBuf {
         &self.workspace
-    }}
-impl TestContext {
+    }
+
     pub(super) fn workspace_str(&self) -> &str {
         self.workspace.to_str().unwrap()
-    }}
-impl TestContext {
+    }
+
     pub(super) fn run(&mut self, command: &Commands) -> Result<String, String> {
         execute_command(command, &self.workspace, &mut self.store)
-    }}
-impl TestContext {
+    }
+
     pub(super) fn create_session(&mut self) -> SessionId {
         let session_id = SessionId::new();
         self.store
             .create_session(session_id, self.workspace_str())
             .unwrap();
         session_id
-    }}
-impl TestContext {
+    }
+
     pub(super) fn create_main_branch(&mut self, session_id: SessionId) -> BranchId {
         let branch_id = BranchId::new();
         self.store
@@ -59,8 +65,8 @@ impl TestContext {
             })
             .unwrap();
         branch_id
-    }}
-impl TestContext {
+    }
+
     pub(super) fn create_turn(
         &mut self,
         session_id: SessionId,
@@ -82,8 +88,8 @@ impl TestContext {
             })
             .unwrap();
         turn_id
-    }}
-impl TestContext {
+    }
+
     pub(super) fn create_checkpoint(
         &mut self,
         session_id: SessionId,
@@ -105,16 +111,17 @@ impl TestContext {
             })
             .unwrap();
         checkpoint_id
-    }}
-impl TestContext {
+    }
+
     pub(super) fn write_file(&self, relative_path: &str, contents: &[u8]) {
         let path = self.workspace.join(relative_path);
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).unwrap();
         }
         fs::write(path, contents).unwrap();
-    }}
-impl TestContext {
+    }
+
     pub(super) fn output_path(&self, filename: &str) -> String {
         self.workspace.join(filename).to_string_lossy().into_owned()
-    }}
+    }
+}
