@@ -36,3 +36,12 @@ mod acceptance;
 pub mod builders;
 pub mod ci_validation;
 pub mod evidence_gate;
+pub mod fakes;
+#[cfg(test)]
+mod final_tasks_tests;
+pub mod generators;
+pub use builders::*;
+pub use ci_validation::*;
+pub use evidence_gate::*;
+pub use fakes::*;
+pub use generators::*;
