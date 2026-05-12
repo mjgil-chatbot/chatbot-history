@@ -5,11 +5,39 @@ use ai_history_core::export::ExportPackage;
 use ai_history_core::export::Exporter;
 use ai_history_core::export::SessionExport;
 use ai_history_core::recovery::{RecoveryExecutor, RecoveryReport, RecoveryResult};
-use ai_history_core::BranchId;
+use ai_history_core::{BranchId, CheckpointId};
 use ai_history_store::sqlite_store::SqliteStore;
+use ai_history_store::StoreIntegrityScanner;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+pub(super) fn doctor(fix: bool, store: &mut SqliteStore) -> Result<String, String> {
+    let mut scanner = StoreIntegrityScanner::new(store);
+    let report = scanner
+        .scan()
+        .map_err(|e| format!("Integrity scan failed: {}", e))?;
+
+    if report.issues.is_empty() {
+        Ok("Store integrity: OK. No issues found.".to_string())
+    } else {
+        let issues_text = format!("{} issues found", report.issues.len());
+        let summary_text = format!(
+            "Sessions: {}, Branches: {}, Checkpoints: {}, Turns: {}, Blobs: {}, Manifests: {}",
+            report.scanned_sessions,
+            report.scanned_branches,
+            report.scanned_checkpoints,
+            report.scanned_turns,
+            report.scanned_blobs,
+            report.scanned_manifests
+        );
+        Err(format!(
+            "Store integrity problems:\n  {}\n  {}\n\n{} (auto-fix not yet implemented)",
+            issues_text,
+            summary_text,
+            if fix { "Fix mode" } else { "Dry-run mode" }
+        ))
+    }
+}
 pub(super) fn recover(execute: bool, store: &mut SqliteStore) -> Result<String, String> {
     let sessions = store.list_sessions().map_err(|e| e.to_string())?;
     if sessions.is_empty() {
@@ -169,4 +197,95 @@ pub(super) fn export(
         package.events.len(),
         output
     ))
+}
+pub(super) fn verify(
+    checkpoint_id: Option<&str>,
+    store: &mut SqliteStore,
+) -> Result<String, String> {
+    let mut scanner = StoreIntegrityScanner::new(store);
+    let result = scanner.scan().map_err(|e| e.to_string())?;
+
+    match checkpoint_id {
+        Some(checkpoint_id) => {
+            let cp_id: CheckpointId = checkpoint_id
+                .parse()
+                .map_err(|_| format!("Invalid checkpoint ID: {}", checkpoint_id))?;
+
+            let checkpoint_issues: Vec<_> = result
+                .issues
+                .iter()
+                .filter(|issue| {
+                    issue
+                        .entity_id
+                        .as_ref()
+                        .map(|entity_id| entity_id.contains(checkpoint_id))
+                        .unwrap_or(false)
+                })
+                .collect();
+
+            if checkpoint_issues.is_empty() && result.passed {
+                Ok(format!("Checkpoint {} verified successfully.", cp_id))
+            } else if !checkpoint_issues.is_empty() {
+                let message = checkpoint_issues
+                    .iter()
+                    .map(|issue| {
+                        format!(
+                            "  [{}] {}",
+                            format!("{:?}", issue.check_type).to_uppercase(),
+                            issue.description
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                Err(format!(
+                    "Checkpoint {} verification failed:\n{}",
+                    cp_id, message
+                ))
+            } else {
+                Err(format!(
+                    "Checkpoint {} verification failed (store integrity issues present).",
+                    cp_id
+                ))
+            }
+        }
+        None => {
+            if result.passed {
+                Ok(format!(
+                    "Store integrity verification passed.\nScanned: {} sessions, {} branches, {} checkpoints, {} manifests",
+                    result.scanned_sessions,
+                    result.scanned_branches,
+                    result.scanned_checkpoints,
+                    result.scanned_manifests
+                ))
+            } else {
+                let error_count = result
+                    .issues
+                    .iter()
+                    .filter(|issue| matches!(issue.severity, ai_history_core::IssueSeverity::Error))
+                    .count();
+                let warning_count = result
+                    .issues
+                    .iter()
+                    .filter(|issue| {
+                        matches!(issue.severity, ai_history_core::IssueSeverity::Warning)
+                    })
+                    .count();
+                Err(format!(
+                    "Store integrity verification FAILED: {} errors, {} warnings.\nIssues:\n{}",
+                    error_count,
+                    warning_count,
+                    result
+                        .issues
+                        .iter()
+                        .map(|issue| format!(
+                            "  [{}] {}",
+                            format!("{:?}", issue.check_type).to_uppercase(),
+                            issue.description
+                        ))
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                ))
+            }
+        }
+    }
 }
