@@ -51,6 +51,12 @@ mod consolidation_tests;
 mod context_tests;
 #[cfg(test)]
 mod core_boundary_tests;
+#[cfg(test)]
+mod cursor_semantics_tests;
+#[cfg(test)]
+mod diff_tests;
+#[cfg(test)]
+mod event_lifecycle_tests;
 pub mod evidence_gate;
 pub mod fakes;
 #[cfg(test)]
