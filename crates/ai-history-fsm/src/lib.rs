@@ -80,3 +80,11 @@
 
 #![cfg_attr(test, allow(unused_imports, unused_variables))]
 
+pub mod input;
+pub mod output;
+pub mod state;
+pub mod transition;
+pub use input::*;
+pub use output::*;
+pub use state::*;
+pub use transition::*;
