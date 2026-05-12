@@ -63,11 +63,14 @@ pub mod result;
 pub mod retention;
 pub mod rollback_modes;
 pub mod rollback_scope;
+#[cfg(test)]
+mod scope_tests;
 pub mod security;
 pub mod session;
 pub mod timestamp;
 pub mod turn;
 pub mod user_flows;
+
 pub use accessibility::*;
 pub use actor::*;
 pub use blob_store::*;
@@ -98,6 +101,8 @@ pub use session::*;
 pub use timestamp::*;
 pub use turn::*;
 pub use user_flows::*;
+// event_log exports infrastructure types (EventId, SequenceNumber, PayloadVersion)
+// The canonical Event type lives in ai-history-events crate
 pub use benchmark::*;
 pub use canonical_ownership::*;
 pub use checkpoint::*;
