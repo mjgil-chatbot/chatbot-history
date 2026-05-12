@@ -1,3 +1,5 @@
+use super::execute_command;
+use ai_history_cli::Commands;
 use ai_history_core::{BranchId, CheckpointId, SessionId, TurnId};
 use ai_history_store::sqlite_store::{BranchInfo, CheckpointInfo, SqliteStore, TurnInfo};
 use std::fs;
@@ -25,6 +27,10 @@ impl TestContext {
 impl TestContext {
     pub(super) fn workspace_str(&self) -> &str {
         self.workspace.to_str().unwrap()
+    }}
+impl TestContext {
+    pub(super) fn run(&mut self, command: &Commands) -> Result<String, String> {
+        execute_command(command, &self.workspace, &mut self.store)
     }}
 impl TestContext {
     pub(super) fn create_session(&mut self) -> SessionId {

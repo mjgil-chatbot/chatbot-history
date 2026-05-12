@@ -1,9 +1,7 @@
-use ai_history_core::export::BranchExport;
-use ai_history_core::export::CheckpointExport;
-use ai_history_core::export::EventExport;
-use ai_history_core::export::ExportPackage;
-use ai_history_core::export::Exporter;
-use ai_history_core::export::SessionExport;
+use ai_history_core::export::{
+    BranchExport, CheckpointExport, EventExport, ExportPackage, Exporter, Importer, SessionExport,
+};
+use ai_history_core::gc::{GcExecutor, GcOptions};
 use ai_history_core::recovery::{RecoveryExecutor, RecoveryReport, RecoveryResult};
 use ai_history_core::{BranchId, CheckpointId};
 use ai_history_store::sqlite_store::SqliteStore;
@@ -11,6 +9,35 @@ use ai_history_store::StoreIntegrityScanner;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+
+pub(super) fn gc(
+    execute: bool,
+    protected: &[String],
+    workspace: &PathBuf,
+    store: &mut SqliteStore,
+) -> Result<String, String> {
+    let session_res = store
+        .resolve_active_session(workspace.to_str().unwrap_or("."))
+        .map_err(|e| e.to_string())?;
+
+    let mut options = GcOptions::new();
+    if execute {
+        options = options.with_execute();
+    }
+    for protected_id in protected {
+        if let Ok(checkpoint_id) = protected_id.parse::<CheckpointId>() {
+            options = options.protect_checkpoint(checkpoint_id);
+        }
+    }
+
+    options = options.protect_session(session_res.session.id);
+    if let Some(active_branch) = &session_res.active_branch {
+        options = options.protect_branch(active_branch.id);
+    }
+
+    GcExecutor::execute_with_summary(store, &options).map_err(|e| e.to_string())
+}
+
 pub(super) fn doctor(fix: bool, store: &mut SqliteStore) -> Result<String, String> {
     let mut scanner = StoreIntegrityScanner::new(store);
     let report = scanner
@@ -38,6 +65,7 @@ pub(super) fn doctor(fix: bool, store: &mut SqliteStore) -> Result<String, Strin
         ))
     }
 }
+
 pub(super) fn recover(execute: bool, store: &mut SqliteStore) -> Result<String, String> {
     let sessions = store.list_sessions().map_err(|e| e.to_string())?;
     if sessions.is_empty() {
@@ -84,6 +112,7 @@ pub(super) fn recover(execute: bool, store: &mut SqliteStore) -> Result<String, 
         }
     }
 }
+
 pub(super) fn export(
     output: &str,
     _include_blobs: bool,
@@ -198,6 +227,49 @@ pub(super) fn export(
         output
     ))
 }
+
+pub(super) fn import(
+    input: &str,
+    _session_id: Option<&String>,
+    _store: &mut SqliteStore,
+) -> Result<String, String> {
+    let mut file = File::open(input).map_err(|e| format!("Failed to open import file: {}", e))?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .map_err(|e| format!("Failed to read import file: {}", e))?;
+
+    let package: ExportPackage = serde_json::from_str(&contents).map_err(|e| {
+        format!(
+            "Failed to parse import file: {}. Ensure it's a valid export JSON.",
+            e
+        )
+    })?;
+
+    let importer = Importer::new();
+    let verification = importer.verify_integrity(&package);
+    if !verification.all_passed() {
+        let issues = if !verification.checksum_valid {
+            "invalid checksums"
+        } else if !verification.blob_hash_valid {
+            "invalid blob hashes"
+        } else {
+            "invalid references"
+        };
+        return Err(format!(
+            "Import failed: package integrity check failed - {}",
+            issues
+        ));
+    }
+
+    Ok(format!(
+        "Import successful: {} sessions, {} branches, {} checkpoints, {} events verified.",
+        package.sessions.len(),
+        package.branches.len(),
+        package.checkpoints.len(),
+        package.events.len()
+    ))
+}
+
 pub(super) fn verify(
     checkpoint_id: Option<&str>,
     store: &mut SqliteStore,
