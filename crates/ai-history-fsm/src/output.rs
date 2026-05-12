@@ -3,6 +3,7 @@
 use ai_history_core::{BranchId, CheckpointId, SessionId, TurnId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
+
 /// Output actions emitted by the FSM on transitions
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
@@ -80,6 +81,7 @@ pub enum OutputAction {
     /// Restore conversation without affecting workspace
     RestoreConversationOnly { checkpoint_id: CheckpointId },
 }
+
 /// Severity level for notifications
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NotificationSeverity {
@@ -87,4 +89,63 @@ pub enum NotificationSeverity {
     Warning,
     Error,
     Success,
+}
+
+impl Default for NotificationSeverity {
+    fn default() -> Self {
+        Self::Info
+    }
+}
+
+impl Display for OutputAction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OutputAction::AppendEvent { .. } => write!(f, "AppendEvent"),
+            OutputAction::CreateTurn { .. } => write!(f, "CreateTurn"),
+            OutputAction::CaptureWorkspaceSnapshot { .. } => write!(f, "CaptureWorkspaceSnapshot"),
+            OutputAction::ApplyPatch { .. } => write!(f, "ApplyPatch"),
+            OutputAction::RestoreWorkspace { .. } => write!(f, "RestoreWorkspace"),
+            OutputAction::MoveBranchHead { .. } => write!(f, "MoveBranchHead"),
+            OutputAction::CreateBranch { .. } => write!(f, "CreateBranch"),
+            OutputAction::ShowConflictUI { .. } => write!(f, "ShowConflictUI"),
+            OutputAction::EmitNotification { .. } => write!(f, "EmitNotification"),
+            OutputAction::FinalizeTurn { .. } => write!(f, "FinalizeTurn"),
+            OutputAction::CancelPending => write!(f, "CancelPending"),
+            OutputAction::BeginToolPolling { .. } => write!(f, "BeginToolPolling"),
+            OutputAction::EmitError { .. } => write!(f, "EmitError"),
+            OutputAction::NavigateToTurn { .. } => write!(f, "NavigateToTurn"),
+            OutputAction::ForkBranch { .. } => write!(f, "ForkBranch"),
+            OutputAction::SwitchBranch { .. } => write!(f, "SwitchBranch"),
+            OutputAction::RestoreWorkspaceOnly { .. } => write!(f, "RestoreWorkspaceOnly"),
+            OutputAction::RestoreConversationOnly { .. } => write!(f, "RestoreConversationOnly"),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_notification_severity_default() {
+        assert_eq!(NotificationSeverity::default(), NotificationSeverity::Info);
+    }
+
+    #[test]
+    fn test_output_action_serialization() {
+        let action = OutputAction::CreateTurn {
+            session_id: SessionId::new(),
+            branch_id: BranchId::new(),
+            parent_turn_id: None,
+        };
+        let json = serde_json::to_string(&action).unwrap();
+        let parsed: OutputAction = serde_json::from_str(&json).unwrap();
+        assert_eq!(action, parsed);
+    }
+
+    #[test]
+    fn test_output_action_display() {
+        let action = OutputAction::CancelPending;
+        assert_eq!(action.to_string(), "CancelPending");
+    }
 }

@@ -81,9 +81,13 @@
 #![cfg_attr(test, allow(unused_imports, unused_variables))]
 
 pub mod input;
+pub mod orchestrator;
 pub mod output;
+#[cfg(test)]
+mod scope_tests;
 pub mod state;
 pub mod transition;
+
 pub use input::*;
 pub use output::*;
 pub use state::*;
