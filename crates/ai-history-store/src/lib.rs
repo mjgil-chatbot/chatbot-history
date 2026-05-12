@@ -21,6 +21,7 @@
     )
 )]
 
+pub mod gc;
 pub mod integrity;
 pub mod migrations;
 pub mod orchestrator;
