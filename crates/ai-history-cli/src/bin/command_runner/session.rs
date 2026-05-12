@@ -38,3 +38,33 @@ pub(super) fn init(
         session_id, title_str
     )))
 }
+pub(super) fn branches(store: &mut SqliteStore) -> Result<String, String> {
+    let sessions = store.list_sessions().map_err(|e| e.to_string())?;
+    let session = sessions
+        .first()
+        .ok_or("No active session. Run 'init' first.")?;
+    let branches = store.list_branches(session.id).map_err(|e| e.to_string())?;
+
+    if branches.is_empty() {
+        return Ok("No branches found.".to_string());
+    }
+
+    let mut output = String::new();
+    for branch in branches {
+        output.push_str(&OutputFormatter::format_branch(
+            branch.id,
+            &branch.name,
+            branch
+                .head_turn_id
+                .as_ref()
+                .map(|turn| turn.to_string())
+                .as_deref(),
+            chrono::DateTime::parse_from_rfc3339(&branch.created_at)
+                .map(|dt| dt.with_timezone(&chrono::Utc))
+                .unwrap_or_else(|_| chrono::Utc::now()),
+            false,
+        ));
+        output.push('\n');
+    }
+    Ok(output)
+}

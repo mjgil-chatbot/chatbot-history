@@ -1,8 +1,31 @@
 //! CLI output formatting
 
+use ai_history_core::BranchId;
 use chrono::{DateTime, Utc};
 /// Output formatter for CLI
 pub struct OutputFormatter;
+impl OutputFormatter {
+    /// Format a branch for display
+    pub fn format_branch(
+        id: BranchId,
+        name: &str,
+        head_turn: Option<&str>,
+        created: DateTime<Utc>,
+        is_active: bool,
+    ) -> String {
+        let active_str = if is_active { " (active)" } else { "" };
+        let head_str = head_turn
+            .map(|h| format!("\n  Head: {}", h))
+            .unwrap_or_default();
+        format!(
+            "Branch: {} {}{}{}\n  Created: {}",
+            name,
+            id,
+            active_str,
+            head_str,
+            created.to_rfc3339()
+        )
+    }}
 impl OutputFormatter {
     /// Format an error for display
     pub fn format_error(message: &str, context: Option<&str>) -> String {
