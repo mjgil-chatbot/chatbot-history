@@ -23,8 +23,10 @@
 
 pub mod integrity;
 pub mod migrations;
+pub mod orchestrator;
 pub mod session;
 pub mod sqlite_store;
+pub mod store;
 pub mod traits;
 pub mod unit_of_work;
 pub mod views;
