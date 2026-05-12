@@ -10,3 +10,4 @@
 
 #![cfg_attr(test, allow(unused_imports, unused_variables))]
 
+pub mod event;
