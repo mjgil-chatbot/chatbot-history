@@ -11,3 +11,6 @@
 #![cfg_attr(test, allow(unused_imports, unused_variables))]
 
 pub mod event;
+pub mod replay;
+pub mod schema;
+pub use event::*;
