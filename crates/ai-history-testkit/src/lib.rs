@@ -45,6 +45,12 @@ pub mod ci_validation;
 mod cli_tests;
 #[cfg(test)]
 mod concurrency_security_tests;
+#[cfg(test)]
+mod consolidation_tests;
+#[cfg(test)]
+mod context_tests;
+#[cfg(test)]
+mod core_boundary_tests;
 pub mod evidence_gate;
 pub mod fakes;
 #[cfg(test)]
