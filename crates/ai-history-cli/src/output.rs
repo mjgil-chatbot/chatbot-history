@@ -1,9 +1,29 @@
 //! CLI output formatting
 
 use ai_history_core::BranchId;
+use ai_history_core::CheckpointId;
 use chrono::{DateTime, Utc};
 /// Output formatter for CLI
 pub struct OutputFormatter;
+impl OutputFormatter {
+    /// Format a checkpoint for display
+    pub fn format_checkpoint(
+        id: CheckpointId,
+        reason: &str,
+        file_count: usize,
+        created: DateTime<Utc>,
+        name: Option<&str>,
+    ) -> String {
+        let name_str = name.map(|n| format!(" [{}]", n)).unwrap_or_default();
+        format!(
+            "Checkpoint: {}{}\n  Reason: {}\n  Files: {}\n  Created: {}",
+            id,
+            name_str,
+            reason,
+            file_count,
+            created.to_rfc3339()
+        )
+    }}
 impl OutputFormatter {
     /// Format a branch for display
     pub fn format_branch(
