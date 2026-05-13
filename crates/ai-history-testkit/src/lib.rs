@@ -61,6 +61,10 @@ pub mod evidence_gate;
 pub mod fakes;
 #[cfg(test)]
 mod final_tasks_tests;
+#[cfg(test)]
+mod forward_navigation_tests;
+#[cfg(test)]
+mod fsm_tests;
 pub mod generators;
 pub use builders::*;
 pub use ci_validation::*;
