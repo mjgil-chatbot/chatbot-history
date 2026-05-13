@@ -11,3 +11,4 @@
 pub mod context;
 pub mod reproducibility;
 pub use context::*;
+pub use reproducibility::*;
