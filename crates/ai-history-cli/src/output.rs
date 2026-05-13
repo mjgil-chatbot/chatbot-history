@@ -1,11 +1,22 @@
 //! CLI output formatting
 
-use ai_history_core::BranchId;
-use ai_history_core::CheckpointId;
+use ai_history_core::{BranchId, CheckpointId, SessionId};
 use chrono::{DateTime, Utc};
+
 /// Output formatter for CLI
 pub struct OutputFormatter;
+
 impl OutputFormatter {
+    /// Format a session for display
+    pub fn format_session(id: SessionId, title: &str, created: DateTime<Utc>) -> String {
+        format!(
+            "Session: {}\n  Title: {}\n  Created: {}",
+            id,
+            if title.is_empty() { "untitled" } else { title },
+            created.to_rfc3339()
+        )
+    }
+
     /// Format a checkpoint for display
     pub fn format_checkpoint(
         id: CheckpointId,
@@ -23,8 +34,8 @@ impl OutputFormatter {
             file_count,
             created.to_rfc3339()
         )
-    }}
-impl OutputFormatter {
+    }
+
     /// Format a branch for display
     pub fn format_branch(
         id: BranchId,
@@ -45,23 +56,25 @@ impl OutputFormatter {
             head_str,
             created.to_rfc3339()
         )
-    }}
-impl OutputFormatter {
+    }
+
     /// Format an error for display
     pub fn format_error(message: &str, context: Option<&str>) -> String {
         let ctx_str = context.map(|c| format!(" ({})", c)).unwrap_or_default();
         format!("Error: {}{}", message, ctx_str)
-    }}
-impl OutputFormatter {
+    }
+
     /// Format a success message
     pub fn format_success(message: &str) -> String {
         format!("Success: {}", message)
-    }}
-impl OutputFormatter {
+    }
+
     /// Format a warning message
     pub fn format_warning(message: &str) -> String {
         format!("Warning: {}", message)
-    }}
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
