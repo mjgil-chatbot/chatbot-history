@@ -72,6 +72,8 @@ pub mod generators;
 mod navigation_cli_tests;
 #[cfg(test)]
 mod replay_and_fixtures_tests;
+#[cfg(test)]
+mod restore_conflict_tests;
 pub use builders::*;
 pub use ci_validation::*;
 pub use evidence_gate::*;
