@@ -82,6 +82,12 @@ mod scope_tests;
 mod session_persistence_tests;
 #[cfg(test)]
 mod snapshot_tests;
+#[cfg(test)]
+mod store_migration_tests;
+#[cfg(test)]
+mod store_tests;
+#[cfg(test)]
+mod testkit_tests;
 pub use builders::*;
 pub use ci_validation::*;
 pub use evidence_gate::*;
