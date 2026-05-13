@@ -15,3 +15,4 @@ pub mod replay;
 pub mod schema;
 pub use event::*;
 pub use replay::*;
+pub use schema::*;
