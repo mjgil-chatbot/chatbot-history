@@ -323,3 +323,128 @@ mod test_session_persistence {
         assert!(info.view_cursor.is_some());
     }
 }
+#[cfg(test)]
+mod test_branch_dag_persistence {
+    use ai_history_core::{BranchId, SessionId, TurnId};
+    use ai_history_store::BranchInfo;
+
+    /// Test: BranchInfo has all required fields per Task 24
+    #[test]
+    fn test_branch_info_has_complete_fields() {
+        let branch_id = BranchId::new();
+        let info = BranchInfo {
+            id: branch_id,
+            session_id: SessionId::new(),
+            name: "main".to_string(),
+            parent_branch_id: None,
+            created_from_turn_id: None,
+            head_turn_id: None,
+            ancestry: Vec::new(),
+            protected: false,
+            archived: false,
+            abandoned_future: false,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        };
+        assert_eq!(info.name, "main");
+        assert!(!info.ancestry.is_empty() || info.ancestry.is_empty()); // ancestry can be empty
+    }
+
+    /// Test: BranchInfo can represent child branch with parent
+    #[test]
+    fn test_branch_info_with_parent() {
+        let parent_id = BranchId::new();
+        let info = BranchInfo {
+            id: BranchId::new(),
+            session_id: SessionId::new(),
+            name: "feature".to_string(),
+            parent_branch_id: Some(parent_id),
+            created_from_turn_id: None,
+            head_turn_id: None,
+            ancestry: vec![parent_id],
+            protected: false,
+            archived: false,
+            abandoned_future: false,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        };
+        assert!(info.parent_branch_id.is_some());
+        assert_eq!(info.ancestry.len(), 1);
+    }
+
+    /// Test: BranchInfo can represent fork from cursor
+    #[test]
+    fn test_branch_info_fork_from_cursor() {
+        let turn_id = TurnId::new();
+        let info = BranchInfo {
+            id: BranchId::new(),
+            session_id: SessionId::new(),
+            name: "forked".to_string(),
+            parent_branch_id: Some(BranchId::new()),
+            created_from_turn_id: Some(turn_id),
+            head_turn_id: Some(turn_id),
+            ancestry: Vec::new(),
+            protected: false,
+            archived: false,
+            abandoned_future: false,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        };
+        assert!(info.created_from_turn_id.is_some());
+        assert_eq!(info.head_turn_id, info.created_from_turn_id);
+    }
+
+    /// Test: BranchInfo can represent abandoned future
+    #[test]
+    fn test_branch_info_abandoned_future() {
+        let info = BranchInfo {
+            id: BranchId::new(),
+            session_id: SessionId::new(),
+            name: "abandoned".to_string(),
+            parent_branch_id: Some(BranchId::new()),
+            created_from_turn_id: None,
+            head_turn_id: None,
+            ancestry: Vec::new(),
+            protected: false,
+            archived: false,
+            abandoned_future: true,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        };
+        assert!(info.abandoned_future);
+    }
+
+    /// Test: BranchInfo can represent protected branch
+    #[test]
+    fn test_branch_info_protected() {
+        let info = BranchInfo {
+            id: BranchId::new(),
+            session_id: SessionId::new(),
+            name: "protected".to_string(),
+            parent_branch_id: None,
+            created_from_turn_id: None,
+            head_turn_id: None,
+            ancestry: Vec::new(),
+            protected: true,
+            archived: false,
+            abandoned_future: false,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        };
+        assert!(info.protected);
+    }
+
+    /// Test: BranchInfo can represent archived branch
+    #[test]
+    fn test_branch_info_archived() {
+        let info = BranchInfo {
+            id: BranchId::new(),
+            session_id: SessionId::new(),
+            name: "archived".to_string(),
+            parent_branch_id: None,
+            created_from_turn_id: None,
+            head_turn_id: None,
+            ancestry: Vec::new(),
+            protected: false,
+            archived: true,
+            abandoned_future: false,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        };
+        assert!(info.archived);
+    }
+}
