@@ -70,6 +70,8 @@ mod gc_retention_import_tests;
 pub mod generators;
 #[cfg(test)]
 mod navigation_cli_tests;
+#[cfg(test)]
+mod replay_and_fixtures_tests;
 pub use builders::*;
 pub use ci_validation::*;
 pub use evidence_gate::*;
