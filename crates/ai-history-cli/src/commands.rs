@@ -1,7 +1,9 @@
 //! CLI commands implementation
 
+use ai_history_core::{BranchId, CheckpointId, SessionId};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
+
 /// AI History CLI
 #[derive(Parser)]
 #[command(name = "ai-history")]
@@ -18,6 +20,7 @@ pub struct Cli {
     #[arg(short, long)]
     pub session_id: Option<String>,
 }
+
 #[derive(Subcommand)]
 pub enum Commands {
     /// Initialize a new history session
@@ -176,6 +179,7 @@ pub enum Commands {
         checkpoint_id: Option<String>,
     },
 }
+
 #[derive(Clone, Copy, PartialEq, Eq, Default, clap::ValueEnum)]
 pub enum RestoreModeCli {
     ConversationOnly,
@@ -183,4 +187,52 @@ pub enum RestoreModeCli {
     #[default]
     Both,
     Fork,
+}
+
+/// Parse a session ID from string
+pub fn parse_session_id(s: &str) -> Result<SessionId, String> {
+    s.parse().map_err(|_| format!("Invalid session ID: {}", s))
+}
+
+/// Parse a checkpoint ID from string
+pub fn parse_checkpoint_id(s: &str) -> Result<CheckpointId, String> {
+    s.parse()
+        .map_err(|_| format!("Invalid checkpoint ID: {}", s))
+}
+
+/// Parse a branch ID from string
+pub fn parse_branch_id(s: &str) -> Result<BranchId, String> {
+    s.parse().map_err(|_| format!("Invalid branch ID: {}", s))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_session_id() {
+        let id = SessionId::new();
+        let result = parse_session_id(&id.to_string()).unwrap();
+        assert_eq!(id, result);
+    }
+
+    #[test]
+    fn test_parse_checkpoint_id() {
+        let id = CheckpointId::new();
+        let result = parse_checkpoint_id(&id.to_string()).unwrap();
+        assert_eq!(id, result);
+    }
+
+    #[test]
+    fn test_parse_branch_id() {
+        let id = BranchId::new();
+        let result = parse_branch_id(&id.to_string()).unwrap();
+        assert_eq!(id, result);
+    }
+
+    #[test]
+    fn test_parse_invalid_session_id() {
+        let result = parse_session_id("not-a-valid-id");
+        assert!(result.is_err());
+    }
 }
