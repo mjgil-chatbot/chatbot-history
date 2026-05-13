@@ -88,6 +88,11 @@ mod store_migration_tests;
 mod store_tests;
 #[cfg(test)]
 mod testkit_tests;
+#[cfg(test)]
+mod ui_model_tests;
+#[cfg(test)]
+mod views_and_blob_tests;
+
 pub use builders::*;
 pub use ci_validation::*;
 pub use evidence_gate::*;
