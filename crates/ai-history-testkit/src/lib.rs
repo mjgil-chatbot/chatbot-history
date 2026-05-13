@@ -65,6 +65,8 @@ mod final_tasks_tests;
 mod forward_navigation_tests;
 #[cfg(test)]
 mod fsm_tests;
+#[cfg(test)]
+mod gc_retention_import_tests;
 pub mod generators;
 pub use builders::*;
 pub use ci_validation::*;
