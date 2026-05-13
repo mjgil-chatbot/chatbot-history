@@ -74,6 +74,14 @@ mod navigation_cli_tests;
 mod replay_and_fixtures_tests;
 #[cfg(test)]
 mod restore_conflict_tests;
+#[cfg(test)]
+mod restore_tests;
+#[cfg(test)]
+mod scope_tests;
+#[cfg(test)]
+mod session_persistence_tests;
+#[cfg(test)]
+mod snapshot_tests;
 pub use builders::*;
 pub use ci_validation::*;
 pub use evidence_gate::*;
