@@ -13,3 +13,5 @@ pub mod diff;
 pub mod merge;
 pub mod patch;
 pub use diff::*;
+pub use merge::*;
+pub use patch::*;
