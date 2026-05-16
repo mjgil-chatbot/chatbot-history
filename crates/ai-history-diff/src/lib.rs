@@ -12,6 +12,9 @@
 pub mod diff;
 pub mod merge;
 pub mod patch;
+#[cfg(test)]
+mod scope_tests;
+
 pub use diff::*;
 pub use merge::*;
 pub use patch::*;
