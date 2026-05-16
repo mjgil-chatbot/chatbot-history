@@ -10,5 +10,8 @@
 
 pub mod context;
 pub mod reproducibility;
+#[cfg(test)]
+mod scope_tests;
+
 pub use context::*;
 pub use reproducibility::*;
