@@ -16,3 +16,4 @@ pub mod scanner;
 pub use blob_store::*;
 pub use comparison::*;
 pub use manifest::*;
+pub use scanner::*;
