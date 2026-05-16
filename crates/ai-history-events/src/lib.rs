@@ -13,6 +13,9 @@
 pub mod event;
 pub mod replay;
 pub mod schema;
+#[cfg(test)]
+mod scope_tests;
+
 pub use event::*;
 pub use replay::*;
 pub use schema::*;
