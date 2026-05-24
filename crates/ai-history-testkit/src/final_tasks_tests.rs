@@ -16,7 +16,314 @@
 //! Task 94: Complete final implementation audit
 //! Task 95: Publish final design review
 
+#[cfg(test)]
+mod test_cli_commands {
+    use ai_history_cli::{Cli, Commands, RestoreModeCli};
+    use ai_history_core::{BranchId, CheckpointId, SessionId, TurnId};
+
+    /// Verify all CLI commands exist and can be constructed
+    #[test]
+    fn test_cli_commands_init() {
+        let cmd = Commands::Init {
+            title: Some("test".to_string()),
+        };
+        assert!(matches!(cmd, Commands::Init { .. }));
+    }
+
+    /// Verify checkpoint command
+    #[test]
+    fn test_cli_commands_checkpoint() {
+        let cmd = Commands::Checkpoint {
+            name: Some("v1".to_string()),
+            reason: "manual".to_string(),
+        };
+        assert!(matches!(cmd, Commands::Checkpoint { .. }));
+    }
+
+    /// Verify list-checkpoints command
+    #[test]
+    fn test_cli_commands_list_checkpoints() {
+        let cmd = Commands::ListCheckpoints {
+            branch: "main".to_string(),
+        };
+        assert!(matches!(cmd, Commands::ListCheckpoints { .. }));
+    }
+
+    /// Verify restore command
+    #[test]
+    fn test_cli_commands_restore() {
+        let cmd = Commands::Restore {
+            checkpoint_id: "cp-1".to_string(),
+            mode: RestoreModeCli::Both,
+        };
+        assert!(matches!(cmd, Commands::Restore { .. }));
+    }
+
+    /// Verify fork command
+    #[test]
+    fn test_cli_commands_fork() {
+        let cmd = Commands::Fork {
+            checkpoint_id: "cp-1".to_string(),
+            name: "feature-x".to_string(),
+        };
+        assert!(matches!(cmd, Commands::Fork { .. }));
+    }
+
+    /// Verify branches command
+    #[test]
+    fn test_cli_commands_branches() {
+        let cmd = Commands::Branches;
+        assert!(matches!(cmd, Commands::Branches));
+    }
+
+    /// Verify diff command
+    #[test]
+    fn test_cli_commands_diff() {
+        let cmd = Commands::Diff {
+            checkpoint_id: "cp-1".to_string(),
+            files_only: true,
+        };
+        assert!(matches!(cmd, Commands::Diff { .. }));
+    }
+
+    /// Verify status command
+    #[test]
+    fn test_cli_commands_status() {
+        let cmd = Commands::Status;
+        assert!(matches!(cmd, Commands::Status));
+    }
+
+    /// Verify gc command
+    #[test]
+    fn test_cli_commands_gc() {
+        let cmd = Commands::Gc {
+            execute: true,
+            protected: vec!["cp-1".to_string()],
+        };
+        assert!(matches!(cmd, Commands::Gc { .. }));
+    }
+
+    /// Verify doctor command
+    #[test]
+    fn test_cli_commands_doctor() {
+        let cmd = Commands::Doctor { fix: true };
+        assert!(matches!(cmd, Commands::Doctor { .. }));
+    }
+
+    /// Verify navigate-back command
+    #[test]
+    fn test_cli_commands_navigate_back() {
+        let cmd = Commands::NavigateBack { count: Some(5) };
+        assert!(matches!(cmd, Commands::NavigateBack { .. }));
+    }
+
+    /// Verify navigate-forward command
+    #[test]
+    fn test_cli_commands_navigate_forward() {
+        let cmd = Commands::NavigateForward { count: Some(3) };
+        assert!(matches!(cmd, Commands::NavigateForward { .. }));
+    }
+
+    /// Verify fork-current command
+    #[test]
+    fn test_cli_commands_fork_current() {
+        let cmd = Commands::ForkCurrent {
+            name: "new-branch".to_string(),
+        };
+        assert!(matches!(cmd, Commands::ForkCurrent { .. }));
+    }
+
+    /// Verify fork-from-cursor command
+    #[test]
+    fn test_cli_commands_fork_from_cursor() {
+        let cmd = Commands::ForkFromCursor {
+            turn_id: "t-1".to_string(),
+            name: "cursor-branch".to_string(),
+        };
+        assert!(matches!(cmd, Commands::ForkFromCursor { .. }));
+    }
+
+    /// Verify continue-from-cursor command
+    #[test]
+    fn test_cli_commands_continue_from_cursor() {
+        let cmd = Commands::ContinueFromCursor {
+            turn_id: "t-1".to_string(),
+            prompt: "continue here".to_string(),
+        };
+        assert!(matches!(cmd, Commands::ContinueFromCursor { .. }));
+    }
+
+    /// Verify export command
+    #[test]
+    fn test_cli_commands_export() {
+        let cmd = Commands::Export {
+            output: "out.json".to_string(),
+            include_blobs: true,
+        };
+        assert!(matches!(cmd, Commands::Export { .. }));
+    }
+
+    /// Verify import command
+    #[test]
+    fn test_cli_commands_import() {
+        let cmd = Commands::Import {
+            input: "in.json".to_string(),
+            session_id: Some("s-1".to_string()),
+        };
+        assert!(matches!(cmd, Commands::Import { .. }));
+    }
+
+    /// Verify verify command
+    #[test]
+    fn test_cli_commands_verify() {
+        let cmd = Commands::Verify {
+            checkpoint_id: Some("cp-1".to_string()),
+        };
+        assert!(matches!(cmd, Commands::Verify { .. }));
+    }
+
+    /// Verify RestoreModeCli variants
+    #[test]
+    fn test_restore_mode_cli_variants() {
+        assert!(matches!(
+            RestoreModeCli::ConversationOnly,
+            RestoreModeCli::ConversationOnly
+        ));
+        assert!(matches!(
+            RestoreModeCli::WorkspaceOnly,
+            RestoreModeCli::WorkspaceOnly
+        ));
+        assert!(matches!(RestoreModeCli::Both, RestoreModeCli::Both));
+        assert!(matches!(RestoreModeCli::Fork, RestoreModeCli::Fork));
+    }
+
+    /// Verify CLI parsing functions exist
+    #[test]
+    fn test_parse_functions_exist() {
+        use ai_history_cli::{parse_branch_id, parse_checkpoint_id, parse_session_id};
+
+        let session_id = SessionId::new();
+        assert!(parse_session_id(&session_id.to_string()).is_ok());
+
+        let checkpoint_id = CheckpointId::new();
+        assert!(parse_checkpoint_id(&checkpoint_id.to_string()).is_ok());
+
+        let branch_id = BranchId::new();
+        assert!(parse_branch_id(&branch_id.to_string()).is_ok());
+    }
+}
+
+#[cfg(test)]
+mod test_ui_timeline_contract {
+    use ai_history_core::{Actor, TurnId};
+    use ai_history_ui_model::{TimelineItem, TimelineView};
+
+    /// Verify TimelineView can be created
+    #[test]
+    fn test_timeline_view_creation() {
+        let view = TimelineView::new("session-123".to_string());
+        assert_eq!(view.session_id, "session-123");
+        assert!(view.is_empty());
+    }
+
+    /// Verify TimelineItem has all required fields
+    #[test]
+    fn test_timeline_item_fields() {
+        let item = TimelineItem {
+            turn_id: TurnId::new(),
+            turn_number: 1,
+            actor: Actor::User,
+            content_preview: "Hello".to_string(),
+            timestamp: "2024-01-01T00:00:00Z".to_string(),
+            message_count: 1,
+            has_tool_calls: false,
+            is_finalized: true,
+        };
+        assert_eq!(item.actor, Actor::User);
+        assert!(item.is_finalized);
+    }
+
+    /// Verify TimelineView serialization
+    #[test]
+    fn test_timeline_view_serialization() {
+        let view = TimelineView::new("session-123".to_string());
+        let json = serde_json::to_string(&view).unwrap();
+        assert!(json.contains("session-123"));
+    }
+
+    /// Verify TimelineItem serialization roundtrip
+    #[test]
+    fn test_timeline_item_roundtrip() {
+        let item = TimelineItem {
+            turn_id: TurnId::new(),
+            turn_number: 1,
+            actor: Actor::Assistant,
+            content_preview: "Hi there".to_string(),
+            timestamp: "2024-01-01T00:00:00Z".to_string(),
+            message_count: 2,
+            has_tool_calls: true,
+            is_finalized: true,
+        };
+        let json = serde_json::to_string(&item).unwrap();
+        let parsed: TimelineItem = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed.actor, Actor::Assistant);
+        assert!(parsed.has_tool_calls);
+    }
+}
+
+#[cfg(test)]
+mod test_ui_restore_contract {
+    use ai_history_core::CheckpointId;
+    use ai_history_ui_model::{
+        RestoreHistoryItem, RestoreHistoryView, RestoreModalState, RestoreModeUi,
+    };
+
+    /// Verify RestoreModalState can be created
+    #[test]
+    fn test_restore_modal_state_creation() {
+        let state = RestoreModalState::new(CheckpointId::new(), "test reason".to_string());
+        assert!(!state.is_executing);
+        assert!(!state.show_confirm);
+    }
+
+    /// Verify RestoreModeUi variants
+    #[test]
+    fn test_restore_mode_ui_variants() {
+        assert_eq!(
+            RestoreModeUi::ConversationOnly,
+            RestoreModeUi::ConversationOnly
+        );
+        assert_eq!(RestoreModeUi::WorkspaceOnly, RestoreModeUi::WorkspaceOnly);
+        assert_eq!(RestoreModeUi::Both, RestoreModeUi::Both);
+        assert_eq!(RestoreModeUi::Fork, RestoreModeUi::Fork);
+    }
+
+    /// Verify RestoreHistoryView tracking
+    #[test]
+    fn test_restore_history_view_tracking() {
+        let mut view = RestoreHistoryView::new("session-1".to_string());
+        view.add_restore(RestoreHistoryItem {
+            checkpoint_id: CheckpointId::new(),
+            mode: RestoreModeUi::Both,
+            executed_at: "2024-01-01T00:00:00Z".to_string(),
+            success: true,
+            files_restored: 5,
+        });
+        assert_eq!(view.success_count(), 1);
+    }
+
+    /// Verify RestoreModalState confirmation flow
+    #[test]
+    fn test_restore_confirmation_flow() {
+        let mut state = RestoreModalState::new(CheckpointId::new(), "test".to_string());
+        assert!(!state.show_confirm);
+        state.request_confirmation();
+        assert!(state.show_confirm);
+    }
+}
+
 include!("final_tasks_tests_release.rs");
+
 #[cfg(test)]
 mod test_testkit_builders {
     use crate::builders::{
@@ -70,6 +377,7 @@ mod test_testkit_builders {
         assert_eq!(conflicts.len(), 1);
     }
 }
+
 #[cfg(test)]
 mod test_invariant_enforcement {
     use ai_history_core::invariants::{
@@ -236,6 +544,7 @@ mod test_invariant_enforcement {
         }
     }
 }
+
 #[cfg(test)]
 mod test_session_persistence {
     use ai_history_core::SessionId;
@@ -323,6 +632,7 @@ mod test_session_persistence {
         assert!(info.view_cursor.is_some());
     }
 }
+
 #[cfg(test)]
 mod test_branch_dag_persistence {
     use ai_history_core::{BranchId, SessionId, TurnId};

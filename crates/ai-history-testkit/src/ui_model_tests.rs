@@ -12,6 +12,39 @@
 //! - Fork action types exist
 
 #[cfg(test)]
+mod test_timeline_cursor {
+    use ai_history_core::{Actor, TurnId};
+    use ai_history_ui_model::{TimelineItem, TimelineView};
+
+    /// Verify TimelineItem exists for timeline cursor
+    #[test]
+    fn test_timeline_item_exists() {
+        let item = TimelineItem {
+            turn_id: TurnId::new(),
+            turn_number: 1,
+            actor: Actor::User,
+            content_preview: "Hello world".to_string(),
+            timestamp: "2024-01-01T00:00:00Z".to_string(),
+            message_count: 1,
+            has_tool_calls: false,
+            is_finalized: true,
+        };
+        assert_eq!(item.turn_number, 1);
+        assert!(matches!(item.actor, Actor::User));
+    }
+
+    /// Verify TimelineView exists with cursor tracking
+    #[test]
+    fn test_timeline_view_exists() {
+        let mut view = TimelineView::new("session-123".to_string());
+        assert!(view.current_turn_id.is_none());
+        let turn_id = TurnId::new();
+        view.current_turn_id = Some(turn_id);
+        assert!(view.get_item(turn_id).is_none());
+    }
+}
+
+#[cfg(test)]
 mod test_branch_dag {
     use ai_history_core::BranchId;
     use ai_history_ui_model::{BranchItem, BranchTimelineView};
@@ -41,6 +74,7 @@ mod test_branch_dag {
         assert_eq!(view.total_count, 0);
     }
 }
+
 #[cfg(test)]
 mod test_checkpoint_lists {
     use ai_history_core::CheckpointId;
@@ -71,6 +105,56 @@ mod test_checkpoint_lists {
         assert!(view.named_checkpoints().is_empty());
     }
 }
+
+#[cfg(test)]
+mod test_restore_progress {
+    use ai_history_core::CheckpointId;
+    use ai_history_ui_model::{
+        RestoreHistoryItem, RestoreHistoryView, RestoreModalState, RestoreModeUi,
+    };
+
+    /// Verify RestoreModalState exists for restore progress
+    #[test]
+    fn test_restore_modal_state_exists() {
+        let state = RestoreModalState::new(CheckpointId::new(), "before_changes".to_string());
+        assert_eq!(state.selected_mode, RestoreModeUi::Both);
+        assert!(!state.is_executing);
+    }
+
+    /// Verify RestoreHistoryView exists
+    #[test]
+    fn test_restore_history_view_exists() {
+        let view = RestoreHistoryView::new("session-123".to_string());
+        assert_eq!(view.success_count(), 0);
+    }
+
+    /// Verify RestoreModeUi variants
+    #[test]
+    fn test_restore_mode_ui_variants() {
+        assert_eq!(
+            RestoreModeUi::ConversationOnly,
+            RestoreModeUi::ConversationOnly
+        );
+        assert_eq!(RestoreModeUi::WorkspaceOnly, RestoreModeUi::WorkspaceOnly);
+        assert_eq!(RestoreModeUi::Both, RestoreModeUi::Both);
+        assert_eq!(RestoreModeUi::Fork, RestoreModeUi::Fork);
+    }
+
+    /// Verify RestoreHistoryItem exists
+    #[test]
+    fn test_restore_history_item_exists() {
+        let item = RestoreHistoryItem {
+            checkpoint_id: CheckpointId::new(),
+            mode: RestoreModeUi::Both,
+            executed_at: "2024-01-01T00:00:00Z".to_string(),
+            success: true,
+            files_restored: 10,
+        };
+        assert!(item.success);
+        assert_eq!(item.files_restored, 10);
+    }
+}
+
 #[cfg(test)]
 mod test_conflicts {
     use ai_history_ui_model::{
@@ -134,6 +218,7 @@ mod test_conflicts {
         ));
     }
 }
+
 #[cfg(test)]
 mod test_accessibility {
     use ai_history_ui_model::{
@@ -270,6 +355,7 @@ mod test_accessibility {
         assert_eq!(labels.continue_button, "Continue from turn");
     }
 }
+
 #[cfg(test)]
 mod test_ambiguous_forward_ui {
     use ai_history_core::{BranchId, TurnId};

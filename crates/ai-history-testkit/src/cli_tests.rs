@@ -97,6 +97,96 @@ mod test_cli_commands {
         assert!(matches!(RestoreModeCli::Fork, RestoreModeCli::Fork));
     }
 }
+
+#[cfg(test)]
+mod test_output_formatter {
+    use ai_history_cli::OutputFormatter;
+    use ai_history_core::{BranchId, CheckpointId, SessionId};
+    use chrono::{DateTime, Utc};
+
+    /// Verify format_session exists
+    #[test]
+    fn test_format_session() {
+        let id = SessionId::new();
+        let output = OutputFormatter::format_session(id, "Test Session", Utc::now());
+        assert!(output.contains("Session:"));
+        assert!(output.contains("Test Session"));
+    }
+
+    /// Verify format_checkpoint exists
+    #[test]
+    fn test_format_checkpoint() {
+        let id = CheckpointId::new();
+        let output = OutputFormatter::format_checkpoint(id, "manual", 10, Utc::now(), Some("v1.0"));
+        assert!(output.contains("Checkpoint:"));
+        assert!(output.contains("Files: 10"));
+        assert!(output.contains("[v1.0]"));
+    }
+
+    /// Verify format_checkpoint_without_name
+    #[test]
+    fn test_format_checkpoint_no_name() {
+        let id = CheckpointId::new();
+        let output = OutputFormatter::format_checkpoint(id, "auto", 5, Utc::now(), None);
+        assert!(output.contains("Checkpoint:"));
+        assert!(!output.contains("["));
+    }
+
+    /// Verify format_branch exists
+    #[test]
+    fn test_format_branch() {
+        let id = BranchId::new();
+        let output =
+            OutputFormatter::format_branch(id, "feature-x", Some("turn-5"), Utc::now(), true);
+        assert!(output.contains("Branch:"));
+        assert!(output.contains("feature-x"));
+        assert!(output.contains("(active)"));
+        assert!(output.contains("Head:"));
+    }
+
+    /// Verify format_branch_inactive
+    #[test]
+    fn test_format_branch_inactive() {
+        let id = BranchId::new();
+        let output = OutputFormatter::format_branch(id, "main", None, Utc::now(), false);
+        assert!(output.contains("Branch:"));
+        assert!(!output.contains("(active)"));
+    }
+
+    /// Verify format_error exists
+    #[test]
+    fn test_format_error() {
+        let output = OutputFormatter::format_error("Something went wrong", Some("init"));
+        assert!(output.contains("Error:"));
+        assert!(output.contains("Something went wrong"));
+        assert!(output.contains("init"));
+    }
+
+    /// Verify format_error_without_context
+    #[test]
+    fn test_format_error_no_context() {
+        let output = OutputFormatter::format_error("Failed", None);
+        assert!(output.contains("Error:"));
+        assert!(output.contains("Failed"));
+    }
+
+    /// Verify format_success exists
+    #[test]
+    fn test_format_success() {
+        let output = OutputFormatter::format_success("Operation completed");
+        assert!(output.contains("Success:"));
+        assert!(output.contains("Operation completed"));
+    }
+
+    /// Verify format_warning exists
+    #[test]
+    fn test_format_warning() {
+        let output = OutputFormatter::format_warning("Low disk space");
+        assert!(output.contains("Warning:"));
+        assert!(output.contains("Low disk space"));
+    }
+}
+
 #[cfg(test)]
 mod test_cli_checkpoint_and_restore_integration {
     use ai_history_core::WorkspacePath;

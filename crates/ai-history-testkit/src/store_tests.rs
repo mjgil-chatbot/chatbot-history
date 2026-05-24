@@ -10,6 +10,17 @@
 //! - Info structs exist
 
 #[cfg(test)]
+mod test_store_unit_of_work {
+    use ai_history_store::UnitOfWork;
+
+    /// Verify UnitOfWork exists
+    #[test]
+    fn test_unit_of_work_exists() {
+        let _uw = UnitOfWork::new();
+    }
+}
+
+#[cfg(test)]
 mod test_store_views {
     use ai_history_core::{BranchId, SessionId};
     use ai_history_store::views::{BranchTimelineView, ChatTranscriptView, CheckpointListView};
@@ -46,6 +57,7 @@ mod test_store_views {
         assert!(json.contains("session_id"));
     }
 }
+
 #[cfg(test)]
 mod test_store_migrations {
     use ai_history_store::migrations::{INITIAL_MIGRATION_SQL, SCHEMA_VERSION};
@@ -58,6 +70,7 @@ mod test_store_migrations {
         assert!(INITIAL_MIGRATION_SQL.contains("CREATE TABLE"));
     }
 }
+
 #[cfg(test)]
 mod test_store_sqlite {
     use ai_history_store::SqliteStore;
@@ -69,6 +82,7 @@ mod test_store_sqlite {
         assert!(store.is_ok());
     }
 }
+
 #[cfg(test)]
 mod test_store_info_structs {
     use ai_history_store::{BranchInfo, CheckpointInfo, SessionInfo, TurnInfo};
@@ -139,5 +153,16 @@ mod test_store_info_structs {
             created_at: "2024-01-01T00:00:00Z".to_string(),
         };
         assert!(!info.reason.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod test_in_memory_event_store {
+    use ai_history_store::InMemoryEventStore;
+
+    /// Verify InMemoryEventStore exists
+    #[test]
+    fn test_in_memory_event_store_exists() {
+        let _store = InMemoryEventStore::new();
     }
 }

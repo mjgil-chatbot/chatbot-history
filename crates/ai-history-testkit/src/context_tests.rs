@@ -60,6 +60,7 @@ mod test_context_snapshot {
         assert_eq!(ref_.tool_call_id, "call_1");
     }
 }
+
 #[cfg(test)]
 mod test_context_references {
     use ai_history_context::{MemoryRef, MemoryType, RuleRef, SummaryRef, SummaryType};
@@ -122,6 +123,7 @@ mod test_context_references {
         assert!(matches!(MemoryType::Ephemeral, MemoryType::Ephemeral));
     }
 }
+
 #[cfg(test)]
 mod test_model_config {
     use ai_history_context::ModelConfig;
@@ -140,5 +142,21 @@ mod test_model_config {
         };
         assert_eq!(config.provider, "anthropic");
         assert_eq!(config.model, "claude-3");
+    }
+}
+
+#[cfg(test)]
+mod test_reproducibility {
+    use ai_history_context::{ContextSnapshot, ReproducibilityInfo};
+    use ai_history_core::TurnId;
+
+    /// Verify ReproducibilityInfo exists
+    #[test]
+    fn test_reproducibility_info_exists() {
+        let turn_id = TurnId::new();
+        let snapshot = ContextSnapshot::new(turn_id);
+        let info = ReproducibilityInfo::new(snapshot);
+        // Check that info was created successfully and can_reproduce is true
+        assert!(info.can_reproduce);
     }
 }

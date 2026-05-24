@@ -9,6 +9,39 @@
 //! - FileMetadata, ScannerConfig exist
 
 #[cfg(test)]
+mod test_snapshot_scanner {
+    use ai_history_snapshot::{FileMetadata, Scanner, ScannerConfig};
+
+    /// Verify Scanner exists
+    #[test]
+    fn test_scanner_exists() {
+        let _scanner = Scanner::new(ScannerConfig::default());
+    }
+
+    /// Verify ScannerConfig has required fields
+    #[test]
+    fn test_scanner_config_defaults() {
+        let config = ScannerConfig::default();
+        assert!(!config.include_hidden);
+        assert!(config.max_file_size > 0);
+        assert!(!config.follow_symlinks);
+    }
+
+    /// Verify FileMetadata exists
+    #[test]
+    fn test_file_metadata_exists() {
+        let metadata = FileMetadata {
+            size: 7,
+            mode: 0o644,
+            executable: false,
+            is_symlink: false,
+            symlink_target: None,
+        };
+        assert!(metadata.size == 7);
+    }
+}
+
+#[cfg(test)]
 mod test_snapshot_manifest {
     use ai_history_core::{ContentHash, ManifestId};
     use ai_history_snapshot::manifest::{FileEntry, FileOwnership, Manifest};
@@ -46,6 +79,7 @@ mod test_snapshot_manifest {
         assert!(matches!(FileOwnership::External, FileOwnership::External));
     }
 }
+
 #[cfg(test)]
 mod test_snapshot_comparison {
     use ai_history_core::ManifestId;
